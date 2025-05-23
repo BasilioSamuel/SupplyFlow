@@ -1,5 +1,11 @@
 [phases.setup]
-nixpkgs = ["libmysqlclient", "gcc", "python3"]
+nixpkgs = [
+  "libmysqlclient",
+  "gcc",
+  "python3",
+  "pkg-config",
+  "mariadb"
+]
 
 cmds = [
   "python3 -m venv /opt/venv",
