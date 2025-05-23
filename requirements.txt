@@ -2,3 +2,6 @@ Flask
 mysql-connector-python
 python-dotenv
 flask_mysqldb
+Flask
+PyMySQL
+Flask_SQLAlchemy
