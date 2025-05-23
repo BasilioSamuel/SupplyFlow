@@ -2,10 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 from datetime import datetime
-import os
 
 app = Flask(__name__)
-app.secret_key = 'sua_chave_secreta'  # Troque para algo mais seguro em produção!
+app.secret_key = 'sua_chave_secreta'
 
 # Configurações do MySQL
 app.config['MYSQL_HOST'] = 'localhost'
@@ -38,16 +37,11 @@ def adicionar_fornecedor():
         senha = request.form['senha']
 
         cur = mysql.connection.cursor()
-        try:
-            cur.execute("INSERT INTO Fornecedor (nome_empresa, cnpj, email, senha) VALUES (%s, %s, %s, %s)",
-                        (nome_empresa, cnpj, email, senha))
-            mysql.connection.commit()
-            flash('Fornecedor adicionado com sucesso!')
-        except Exception as e:
-            flash(f'Erro ao adicionar fornecedor: {str(e)}')
-        finally:
-            cur.close()
-
+        cur.execute("INSERT INTO Fornecedor (nome_empresa, cnpj, email, senha) VALUES (%s, %s, %s, %s)",
+                    (nome_empresa, cnpj, email, senha))
+        mysql.connection.commit()
+        cur.close()
+        flash('Fornecedor adicionado com sucesso!')
         return redirect(url_for('listar_fornecedores'))
     return render_template('adicionar_fornecedor.html')
 
@@ -59,40 +53,32 @@ def editar_fornecedor(id):
         cnpj = request.form['cnpj']
         email = request.form['email']
         senha = request.form['senha']
-
-        try:
-            cur.execute("""
-                UPDATE Fornecedor 
-                SET nome_empresa=%s, cnpj=%s, email=%s, senha=%s 
-                WHERE id_fornecedor=%s
-            """, (nome_empresa, cnpj, email, senha, id))
-            mysql.connection.commit()
-            flash('Fornecedor atualizado com sucesso!')
-        except Exception as e:
-            flash(f'Erro ao atualizar fornecedor: {str(e)}')
-        finally:
-            cur.close()
+        
+        cur.execute("""
+            UPDATE Fornecedor 
+            SET nome_empresa=%s, cnpj=%s, email=%s, senha=%s 
+            WHERE id_fornecedor=%s
+        """, (nome_empresa, cnpj, email, senha, id))
+        mysql.connection.commit()
+        cur.close()
+        flash('Fornecedor atualizado com sucesso!')
         return redirect(url_for('listar_fornecedores'))
     else:
         cur.execute("SELECT * FROM Fornecedor WHERE id_fornecedor=%s", (id,))
         fornecedor = cur.fetchone()
         cur.close()
-        if not fornecedor:
-            flash('Fornecedor não encontrado.')
-            return redirect(url_for('listar_fornecedores'))
         return render_template('editar_fornecedor.html', fornecedor=fornecedor)
 
 @app.route('/fornecedores/excluir/<int:id>', methods=['POST'])
 def excluir_fornecedor(id):
-    cur = mysql.connection.cursor()
     try:
-        # Apaga produtos relacionados antes do fornecedor para manter integridade
+        cur = mysql.connection.cursor()
         cur.execute("DELETE FROM Produto WHERE id_fornecedor = %s", (id,))
         cur.execute("DELETE FROM Fornecedor WHERE id_fornecedor = %s", (id,))
         mysql.connection.commit()
         flash("Fornecedor e produtos relacionados excluídos com sucesso!")
     except Exception as e:
-        flash(f"Erro ao excluir fornecedor: {str(e)}")
+        flash(f"Erro ao excluir: {str(e)}")
     finally:
         cur.close()
     return redirect(url_for('listar_fornecedores'))
@@ -131,20 +117,15 @@ def adicionar_produto():
             return redirect(url_for('adicionar_produto'))
 
         cur = mysql.connection.cursor()
-        try:
-            cur.execute("""
-                INSERT INTO Produto (nome_produto, descricao, quantidade_produto, preco, id_fornecedor) 
-                VALUES (%s, %s, %s, %s, %s)
-            """, (nome, descricao, quantidade_int, preco_float, id_fornecedor))
-            mysql.connection.commit()
-            flash('Produto adicionado com sucesso!')
-        except Exception as e:
-            flash(f'Erro ao adicionar produto: {str(e)}')
-        finally:
-            cur.close()
-
+        cur.execute("""
+            INSERT INTO Produto (nome_produto, descricao, quantidade_produto, preco, id_fornecedor) 
+            VALUES (%s, %s, %s, %s, %s)
+        """, (nome, descricao, quantidade_int, preco_float, id_fornecedor))
+        mysql.connection.commit()
+        cur.close()
+        flash('Produto adicionado com sucesso!')
         return redirect(url_for('listar_produtos'))
-
+    
     cur = mysql.connection.cursor()
     cur.execute("SELECT id_fornecedor, nome_empresa FROM Fornecedor")
     fornecedores = cur.fetchall()
@@ -153,8 +134,8 @@ def adicionar_produto():
 
 @app.route('/produtos/excluir/<int:id>', methods=['POST'])
 def excluir_produto(id):
-    cur = mysql.connection.cursor()
     try:
+        cur = mysql.connection.cursor()
         cur.execute("DELETE FROM Produto WHERE id_produto = %s", (id,))
         mysql.connection.commit()
         flash("Produto excluído com sucesso!")
@@ -179,9 +160,9 @@ def adicionar_comprador():
         nome_funcionario = request.form['nome_funcionario']
         cpf_comprador = request.form['cpf_comprador']
         email = request.form['email']
-        endereco_comprador = request.form.get('endereco_comprador', '')
-        cargo = request.form.get('cargo', '')
-        setor = request.form.get('setor', '')
+        endereco_comprador = request.form['endereco_comprador']
+        cargo = request.form['cargo']
+        setor = request.form['setor']
         senha = request.form['senha']
 
         if not all([nome_funcionario, cpf_comprador, email, senha]):
@@ -197,11 +178,12 @@ def adicionar_comprador():
             """, (nome_funcionario, cpf_comprador, email, endereco_comprador, cargo, setor, senha))
             mysql.connection.commit()
             flash('Comprador adicionado com sucesso!')
+            return redirect(url_for('listar_compradores'))
         except Exception as e:
             flash(f'Erro ao adicionar comprador: {str(e)}')
+            return redirect(url_for('adicionar_comprador'))
         finally:
             cur.close()
-        return redirect(url_for('listar_compradores'))
 
     return render_template('adicionar_comprador.html')
 
@@ -212,9 +194,9 @@ def editar_comprador(id):
         nome_funcionario = request.form['nome_funcionario']
         cpf_comprador = request.form['cpf_comprador']
         email = request.form['email']
-        endereco_comprador = request.form.get('endereco_comprador', '')
-        cargo = request.form.get('cargo', '')
-        setor = request.form.get('setor', '')
+        endereco_comprador = request.form['endereco_comprador']
+        cargo = request.form['cargo']
+        setor = request.form['setor']
         senha = request.form['senha']
 
         if not all([nome_funcionario, cpf_comprador, email, senha]):
@@ -230,11 +212,12 @@ def editar_comprador(id):
             """, (nome_funcionario, cpf_comprador, email, endereco_comprador, cargo, setor, senha, id))
             mysql.connection.commit()
             flash('Comprador atualizado com sucesso!')
+            return redirect(url_for('listar_compradores'))
         except Exception as e:
             flash(f'Erro ao atualizar comprador: {str(e)}')
+            return redirect(url_for('editar_comprador', id=id))
         finally:
             cur.close()
-        return redirect(url_for('listar_compradores'))
     else:
         cur.execute("SELECT * FROM Comprador WHERE id_comprador=%s", (id,))
         comprador = cur.fetchone()
@@ -250,9 +233,9 @@ def excluir_comprador(id):
     try:
         cur.execute("DELETE FROM Comprador WHERE id_comprador=%s", (id,))
         mysql.connection.commit()
-        flash("Comprador excluído com sucesso!")
+        flash('Comprador excluído com sucesso!')
     except Exception as e:
-        flash(f"Erro ao excluir comprador: {str(e)}")
+        flash(f'Erro ao excluir comprador: {str(e)}')
     finally:
         cur.close()
     return redirect(url_for('listar_compradores'))
@@ -262,9 +245,11 @@ def excluir_comprador(id):
 def listar_pagamentos():
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cur.execute("""
-        SELECT pg.id_pagamento, pg.valor_pagamento, pg.data_pagamento, pg.tipo_pagamento, pg.id_compra, c.nome_funcionario
-        FROM Pagamento pg
-        JOIN Compra c ON pg.id_compra = c.id_compra
+        SELECT p.id_pagamento, c.nome_funcionario, pr.nome_produto, p.metodo_pag, p.endereco_pag, p.data_compra, p.hora_pag
+        FROM Pagamento p
+        JOIN Comprador c ON p.id_comprador = c.id_comprador
+        JOIN Produto pr ON p.id_produto = pr.id_produto
+        ORDER BY p.data_compra DESC, p.hora_pag DESC
     """)
     pagamentos = cur.fetchall()
     cur.close()
@@ -272,43 +257,47 @@ def listar_pagamentos():
 
 @app.route('/pagamentos/adicionar', methods=['GET', 'POST'])
 def adicionar_pagamento():
+    cur = mysql.connection.cursor()
     if request.method == 'POST':
-        valor_pagamento = request.form.get('valor_pagamento')
-        data_pagamento = request.form.get('data_pagamento')
-        tipo_pagamento = request.form.get('tipo_pagamento')
-        id_compra = request.form.get('id_compra')
+        id_comprador = request.form.get('id_comprador')
+        id_produto = request.form.get('id_produto')
+        metodo_pag = request.form.get('metodo_pag')
+        endereco_pag = request.form.get('endereco_pag')
+        data_compra = request.form.get('data_compra')
+        hora_pag = request.form.get('hora_pag')
 
-        if not all([valor_pagamento, data_pagamento, tipo_pagamento, id_compra]):
-            flash('Preencha todos os campos do pagamento.')
+        if not all([id_comprador, id_produto, metodo_pag, data_compra, hora_pag]):
+            flash("Preencha todos os campos obrigatórios.")
             return redirect(url_for('adicionar_pagamento'))
 
         try:
-            valor_float = float(valor_pagamento)
-            data_obj = datetime.strptime(data_pagamento, '%Y-%m-%d').date()
+            # Validação básica das datas pode ser adicionada aqui, opcional.
+            datetime.strptime(data_compra, '%Y-%m-%d')
+            datetime.strptime(hora_pag, '%H:%M')
         except ValueError:
-            flash('Formato de valor ou data inválido.')
+            flash("Formato de data ou hora inválido.")
             return redirect(url_for('adicionar_pagamento'))
 
-        cur = mysql.connection.cursor()
         try:
             cur.execute("""
-                INSERT INTO Pagamento (valor_pagamento, data_pagamento, tipo_pagamento, id_compra) 
-                VALUES (%s, %s, %s, %s)
-            """, (valor_float, data_obj, tipo_pagamento, id_compra))
+                INSERT INTO Pagamento (id_comprador, id_produto, metodo_pag, endereco_pag, data_compra, hora_pag)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (id_comprador, id_produto, metodo_pag, endereco_pag, data_compra, hora_pag))
             mysql.connection.commit()
-            flash('Pagamento adicionado com sucesso!')
+            flash('Pagamento registrado com sucesso!')
+            return redirect(url_for('listar_pagamentos'))
         except Exception as e:
-            flash(f'Erro ao adicionar pagamento: {str(e)}')
+            flash(f"Erro ao registrar pagamento: {str(e)}")
+            return redirect(url_for('adicionar_pagamento'))
         finally:
             cur.close()
-
-        return redirect(url_for('listar_pagamentos'))
-
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id_compra FROM Compra")
-    compras = cur.fetchall()
-    cur.close()
-    return render_template('adicionar_pagamento.html', compras=compras)
+    else:
+        cur.execute("SELECT id_comprador, nome_funcionario FROM Comprador")
+        compradores = cur.fetchall()
+        cur.execute("SELECT id_produto, nome_produto FROM Produto")
+        produtos = cur.fetchall()
+        cur.close()
+        return render_template('adicionar_pagamento.html', compradores=compradores, produtos=produtos)
 
 @app.route('/pagamentos/excluir/<int:id>', methods=['POST'])
 def excluir_pagamento(id):
@@ -316,9 +305,9 @@ def excluir_pagamento(id):
     try:
         cur.execute("DELETE FROM Pagamento WHERE id_pagamento=%s", (id,))
         mysql.connection.commit()
-        flash("Pagamento excluído com sucesso!")
+        flash('Pagamento excluído com sucesso!')
     except Exception as e:
-        flash(f"Erro ao excluir pagamento: {str(e)}")
+        flash(f'Erro ao excluir pagamento: {str(e)}')
     finally:
         cur.close()
     return redirect(url_for('listar_pagamentos'))
@@ -328,11 +317,11 @@ def excluir_pagamento(id):
 def listar_compras():
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cur.execute("""
-        SELECT c.id_compra, c.data_compra, c.valor_compra, c.id_fornecedor, c.id_comprador,
-               f.nome_empresa, comp.nome_funcionario
-        FROM Compra c
-        JOIN Fornecedor f ON c.id_fornecedor = f.id_fornecedor
-        JOIN Comprador comp ON c.id_comprador = comp.id_comprador
+        SELECT co.id_compra, co.quantidade, co.data_compra, co.valor_total, p.nome_produto, f.nome_empresa
+        FROM Compra co
+        JOIN Produto p ON co.id_produto = p.id_produto
+        JOIN Fornecedor f ON p.id_fornecedor = f.id_fornecedor
+        ORDER BY co.data_compra DESC
     """)
     compras = cur.fetchall()
     cur.close()
@@ -341,43 +330,43 @@ def listar_compras():
 @app.route('/compras/adicionar', methods=['GET', 'POST'])
 def adicionar_compra():
     if request.method == 'POST':
+        id_produto = request.form.get('id_produto')
+        quantidade = request.form.get('quantidade')
+        valor_total = request.form.get('valor_total')
         data_compra = request.form.get('data_compra')
-        valor_compra = request.form.get('valor_compra')
-        id_fornecedor = request.form.get('id_fornecedor')
-        id_comprador = request.form.get('id_comprador')
 
-        if not all([data_compra, valor_compra, id_fornecedor, id_comprador]):
-            flash('Preencha todos os campos da compra.')
+        if not all([id_produto, quantidade, valor_total, data_compra]):
+            flash('Preencha todos os campos.')
             return redirect(url_for('adicionar_compra'))
 
         try:
-            data_obj = datetime.strptime(data_compra, '%Y-%m-%d').date()
-            valor_float = float(valor_compra)
+            quantidade_int = int(quantidade)
+            valor_float = float(valor_total)
+            datetime.strptime(data_compra, '%Y-%m-%d')
         except ValueError:
-            flash('Formato de data ou valor inválido.')
+            flash('Dados inválidos em quantidade, valor ou data.')
             return redirect(url_for('adicionar_compra'))
 
         cur = mysql.connection.cursor()
         try:
             cur.execute("""
-                INSERT INTO Compra (data_compra, valor_compra, id_fornecedor, id_comprador)
+                INSERT INTO Compra (id_produto, quantidade, valor_total, data_compra)
                 VALUES (%s, %s, %s, %s)
-            """, (data_obj, valor_float, id_fornecedor, id_comprador))
+            """, (id_produto, quantidade_int, valor_float, data_compra))
             mysql.connection.commit()
-            flash('Compra adicionada com sucesso!')
+            flash('Compra registrada com sucesso!')
+            return redirect(url_for('listar_compras'))
         except Exception as e:
-            flash(f'Erro ao adicionar compra: {str(e)}')
+            flash(f'Erro ao registrar compra: {str(e)}')
+            return redirect(url_for('adicionar_compra'))
         finally:
             cur.close()
-        return redirect(url_for('listar_compras'))
-
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id_fornecedor, nome_empresa FROM Fornecedor")
-    fornecedores = cur.fetchall()
-    cur.execute("SELECT id_comprador, nome_funcionario FROM Comprador")
-    compradores = cur.fetchall()
-    cur.close()
-    return render_template('adicionar_compra.html', fornecedores=fornecedores, compradores=compradores)
+    else:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT id_produto, nome_produto FROM Produto")
+        produtos = cur.fetchall()
+        cur.close()
+        return render_template('adicionar_compra.html', produtos=produtos)
 
 @app.route('/compras/excluir/<int:id>', methods=['POST'])
 def excluir_compra(id):
@@ -385,24 +374,24 @@ def excluir_compra(id):
     try:
         cur.execute("DELETE FROM Compra WHERE id_compra=%s", (id,))
         mysql.connection.commit()
-        flash("Compra excluída com sucesso!")
+        flash('Compra excluída com sucesso!')
     except Exception as e:
-        flash(f"Erro ao excluir compra: {str(e)}")
+        flash(f'Erro ao excluir compra: {str(e)}')
     finally:
         cur.close()
     return redirect(url_for('listar_compras'))
 
-# --- MOVIMENTAÇÕES DE ESTOQUE ---
+# --- MOVIMENTAÇÃO DE ESTOQUE ---
 @app.route('/movimentacoes')
 def listar_movimentacoes():
     cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cur.execute("""
-        SELECT m.id_movimentacao_estoque, m.id_produto, m.quantidade_movimentada, m.tipo_movimentacao, m.data_movimentacao,
-               p.nome_produto
-        FROM Movimentacao_Estoque m
-        JOIN Produto p ON m.id_produto = p.id_produto
-        ORDER BY m.data_movimentacao DESC
-    """)
+    SELECT m.id_movimentacao_estoque, p.nome_produto, m.quantidade, m.data_movimentacao
+    FROM Movimentacao_Estoque m
+    JOIN Produto p ON m.id_produto = p.id_produto
+    ORDER BY m.data_movimentacao DESC
+""")
+
     movimentacoes = cur.fetchall()
     cur.close()
     return render_template('lista_movimentacoes.html', movimentacoes=movimentacoes)
@@ -411,17 +400,17 @@ def listar_movimentacoes():
 def adicionar_movimentacao():
     if request.method == 'POST':
         id_produto = request.form.get('id_produto')
-        quantidade = request.form.get('quantidade')
-        tipo_movimentacao = request.form.get('tipo_movimentacao')
-        data_movimentacao = request.form.get('data_movimentacao')
+        quantidade = request.form.get('quantidade_movimentada')
+        tipo = request.form.get('tipo_movimentacao')
+        data = request.form.get('data_movimentacao')
 
-        if not all([id_produto, quantidade, tipo_movimentacao, data_movimentacao]):
-            flash('Preencha todos os campos da movimentação.')
+        if not all([id_produto, quantidade, tipo, data]):
+            flash('Preencha todos os campos.')
             return redirect(url_for('adicionar_movimentacao'))
 
         try:
             quantidade_int = int(quantidade)
-            data_obj = datetime.strptime(data_movimentacao, '%Y-%m-%d').date()
+            datetime.strptime(data, '%Y-%m-%d')
         except ValueError:
             flash('Quantidade ou data inválida.')
             return redirect(url_for('adicionar_movimentacao'))
@@ -431,33 +420,37 @@ def adicionar_movimentacao():
             cur.execute("""
                 INSERT INTO Movimentacao_Estoque (id_produto, quantidade_movimentada, tipo_movimentacao, data_movimentacao)
                 VALUES (%s, %s, %s, %s)
-            """, (id_produto, quantidade_int, tipo_movimentacao, data_obj))
+            """, (id_produto, quantidade_int, tipo, data))
             mysql.connection.commit()
-            flash('Movimentação adicionada com sucesso!')
+            flash('Movimentação registrada com sucesso!')
+            return redirect(url_for('listar_movimentacoes'))
         except Exception as e:
-            flash(f'Erro ao adicionar movimentação: {str(e)}')
+            flash(f'Erro ao registrar movimentação: {str(e)}')
+            return redirect(url_for('adicionar_movimentacao'))
         finally:
             cur.close()
-        return redirect(url_for('listar_movimentacoes'))
-
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT id_produto, nome_produto FROM Produto")
-    produtos = cur.fetchall()
-    cur.close()
-    return render_template('adicionar_movimentacao.html', produtos=produtos)
+    else:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT id_produto, nome_produto FROM Produto")
+        produtos = cur.fetchall()
+        cur.close()
+        return render_template('adicionar_movimentacao.html', produtos=produtos)
 
 @app.route('/movimentacoes/excluir/<int:id>', methods=['POST'])
 def excluir_movimentacao(id):
     cur = mysql.connection.cursor()
     try:
-        cur.execute("DELETE FROM Movimentacao_Estoque WHERE id_movimentacao_estoque=%s", (id,))
+        cur.execute("DELETE FROM Movimentacao_Estoque WHERE id_movimentacao=%s", (id,))
         mysql.connection.commit()
-        flash("Movimentação excluída com sucesso!")
+        flash('Movimentação excluída com sucesso!')
     except Exception as e:
-        flash(f"Erro ao excluir movimentação: {str(e)}")
+        flash(f'Erro ao excluir movimentação: {str(e)}')
     finally:
         cur.close()
     return redirect(url_for('listar_movimentacoes'))
 
+import os
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
