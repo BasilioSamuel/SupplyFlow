@@ -1,8 +1,4 @@
 Flask
-mysql-connector-python
-python-dotenv
-flask_mysqldb
-Flask
-PyMySQL
 Flask_SQLAlchemy
+python-dotenv
 pymysql>=1.1.0
