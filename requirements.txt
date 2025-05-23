@@ -5,3 +5,4 @@ flask_mysqldb
 Flask
 PyMySQL
 Flask_SQLAlchemy
+pymysql>=1.1.0

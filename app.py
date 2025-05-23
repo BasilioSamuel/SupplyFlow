@@ -4,6 +4,8 @@ import MySQLdb.cursors
 from datetime import datetime
 from flask import Flask
 import os
+import pymysql
+pymysql.install_as_MySQLdb()
 
 
 app = Flask(__name__)
