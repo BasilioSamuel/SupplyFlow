@@ -405,17 +405,16 @@ def listar_movimentacoes():
 def adicionar_movimentacao():
     if request.method == 'POST':
         id_produto = request.form.get('id_produto')
-        quantidade = request.form.get('quantidade_movimentada')
-        tipo = request.form.get('tipo_movimentacao')
-        data = request.form.get('data_movimentacao')
+        quantidade = request.form.get('quantidade')
+        data_movimentacao = request.form.get('data_movimentacao')
 
-        if not all([id_produto, quantidade, tipo, data]):
-            flash('Preencha todos os campos.')
+        if not all([id_produto, quantidade, data_movimentacao]):
+            flash('Preencha todos os campos obrigatórios.')
             return redirect(url_for('adicionar_movimentacao'))
 
         try:
             quantidade_int = int(quantidade)
-            datetime.strptime(data, '%Y-%m-%d')
+            datetime.strptime(data_movimentacao, '%Y-%m-%d')
         except ValueError:
             flash('Quantidade ou data inválida.')
             return redirect(url_for('adicionar_movimentacao'))
@@ -423,9 +422,9 @@ def adicionar_movimentacao():
         cur = mysql.connection.cursor()
         try:
             cur.execute("""
-                INSERT INTO Movimentacao_Estoque (id_produto, quantidade_movimentada, tipo_movimentacao, data_movimentacao)
-                VALUES (%s, %s, %s, %s)
-            """, (id_produto, quantidade_int, tipo, data))
+                INSERT INTO Movimentacao_Estoque (id_produto, quantidade, data_movimentacao)
+                VALUES (%s, %s, %s)
+            """, (id_produto, quantidade_int, data_movimentacao))
             mysql.connection.commit()
             flash('Movimentação registrada com sucesso!')
             return redirect(url_for('listar_movimentacoes'))
@@ -440,6 +439,7 @@ def adicionar_movimentacao():
         produtos = cur.fetchall()
         cur.close()
         return render_template('adicionar_movimentacao.html', produtos=produtos)
+
 
 @app.route('/movimentacoes/excluir/<int:id>', methods=['POST'])
 def excluir_movimentacao(id):
