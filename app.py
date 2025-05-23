@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 from datetime import datetime
+from flask import Flask
+import os
+
 
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta'
@@ -448,8 +451,6 @@ def excluir_movimentacao(id):
     finally:
         cur.close()
     return redirect(url_for('listar_movimentacoes'))
-
-import os
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
