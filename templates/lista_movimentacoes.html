@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gestão de Movimentações - SUPPLYFLOW</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7fbff;
+            color: #2c3e50;
+            margin: 20px;
+        }
+        h1 {
+            color: #2d98da;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .flash-message {
+            max-width: 1000px;
+            margin: 10px auto;
+            padding: 10px;
+            background: #e3f2fd;
+            border-left: 5px solid #2d98da;
+            border-radius: 5px;
+            color: #0a2540;
+            font-weight: bold;
+        }
+        a.btn-add {
+            display: inline-block;
+            margin: 0 auto 20px auto;
+            padding: 10px 20px;
+            background-color: #2d98da;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        a.btn-add:hover {
+            background-color: #1e70bf;
+        }
+        table {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        thead {
+            background-color: #2d98da;
+            color: white;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        tbody tr:hover {
+            background-color: #f1f9ff;
+        }
+        .btn-excluir {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-excluir:hover {
+            background-color: #c0392b;
+        }
+        a.back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: #2d98da;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a.back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Gestão de Movimentações</h1>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="flash-message">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<a href="{{ url_for('adicionar_movimentacao') }}" class="btn-add">➕ Nova Movimentação</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Produto</th>
+            <th>Tipo</th>
+            <th>Quantidade</th>
+            <th>Data</th>
+            <th>Funcionário</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for m in movimentacoes %}
+        <tr>
+            <td>{{ m.id_movimentacao_estoque }}</td>
+            <td>{{ m.nome_produto }}</td>
+            <td>{{ m.tipo }}</td>
+            <td>{{ m.quantidade }}</td>
+            <td>{{ m.data_movimentacao }}</td>
+            <td>{{ m.nome_funcionario }}</td>
+            <td>
+                <form action="{{ url_for('excluir_movimentacao', id=m.id_movimentacao_estoque) }}" method="post" onsubmit="return confirm('Confirma exclusão?');">
+                    <button class="btn-excluir">Excluir</button>
+                </form>
+            </td>
+        </tr>
+    {% else %}
+        <tr>
+            <td colspan="7" style="text-align:center; color:#888;">Nenhuma movimentação registrada.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('menu') }}" class="back-link">← Voltar ao Menu Principal</a>
+
+</body>
+</html>

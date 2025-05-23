@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Editar Comprador</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #007bff, #80bdff);
+        color: #fff;
+        margin: 0; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 20px;
+    }
+    form {
+        background: rgba(0, 123, 255, 0.85);
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+        width: 360px;
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-weight: 700;
+        font-size: 1.8em;
+    }
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 10px 12px;
+        margin-bottom: 18px;
+        border-radius: 8px;
+        border: none;
+        font-size: 1em;
+    }
+    button {
+        width: 100%;
+        background-color: #004085;
+        border: none;
+        padding: 14px;
+        border-radius: 10px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #002752;
+    }
+    a {
+        display: block;
+        margin-top: 18px;
+        text-align: center;
+        color: #cce5ff;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+</head>
+<body>
+
+<form method="POST" action="{{ url_for('editar_comprador', id=comprador.id_comprador) }}">
+    <h1>Editar Comprador</h1>
+
+    <label for="nome_funcionario">Nome</label>
+    <input type="text" id="nome_funcionario" name="nome_funcionario" value="{{ comprador.nome_funcionario }}" required />
+
+    <label for="cpf_comprador">CPF</label>
+    <input type="text" id="cpf_comprador" name="cpf_comprador" value="{{ comprador.cpf_comprador }}" required />
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" value="{{ comprador.email }}" required />
+
+    <label for="endereco_comprador">Endereço</label>
+    <input type="text" id="endereco_comprador" name="endereco_comprador" value="{{ comprador.endereco_comprador }}" />
+
+    <label for="cargo">Cargo</label>
+    <input type="text" id="cargo" name="cargo" value="{{ comprador.cargo }}" />
+
+    <label for="setor">Setor</label>
+    <input type="text" id="setor" name="setor" value="{{ comprador.setor }}" />
+
+    <label for="senha">Senha (deixe em branco para manter a atual)</label>
+    <input type="password" id="senha" name="senha" />
+
+    <button type="submit">Salvar Alterações</button>
+    <a href="{{ url_for('listar_compradores') }}">Voltar para Compradores</a>
+</form>
+
+</body>
+</html>

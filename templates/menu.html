@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Menu Principal - SUPPLYFLOW</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style> 
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background: white;
+            color: #0a2540;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .logo-container {
+            margin-bottom: 40px;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .logo {
+            width: 525px;  /* 75% maior que 300px */
+            height: auto;
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.03);
+        }
+        
+        nav {
+            background-color: #f8f9fa;
+            padding: 30px 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        nav h2 {
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 2.2em;
+            color: #0984e3;
+        }
+        
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;  /* Centraliza horizontalmente */
+            gap: 18px;  /* Espaçamento uniforme entre os itens */
+        }
+        
+        a {
+            display: block;
+            padding: 16px 24px;
+            background: #0984e3;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        
+        a:hover {
+            background: #0077cc;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                width: 350px;
+            }
+            
+            nav {
+                padding: 25px;
+                width: 90%;
+            }
+            
+            nav h2 {
+                font-size: 1.8em;
+            }
+            
+            a {
+                padding: 14px 20px;
+                font-size: 1.1em;
+                max-width: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                width: 280px;
+            }
+            
+            a {
+                max-width: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo SUPPLYFLOW" class="logo">
+    </div>
+    <nav>
+        <h2>Menu Principal</h2>
+        <div class="menu-options">
+            <a href="{{ url_for('listar_fornecedores') }}">Fornecedores</a>
+            <a href="{{ url_for('listar_produtos') }}">Produtos</a>
+            <a href="{{ url_for('listar_compradores') }}">Compradores</a>
+            <a href="{{ url_for('listar_pagamentos') }}">Pagamentos</a>
+             <a href="{{ url_for('listar_movimentacoes') }}">Movimentações</a
+        </div>
+    </nav>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Adicionar Fornecedor</title>
+    <style>
+        body { font-family: Arial; background: #fff; color: #333; margin: 0; }
+        .container { padding: 20px; max-width: 600px; margin: auto; }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+        button { background: #1f78ff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #3f3d56; }
+        h1 { color: #3f3d56; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Adicionar Fornecedor</h1>
+        <form method="post">
+            Nome da Empresa: <input type="text" name="nome_empresa" required>
+            CNPJ: <input type="text" name="cnpj" required>
+            Email: <input type="email" name="email" required>
+            Senha: <input type="password" name="senha" required>
+            <button type="submit">Salvar</button>
+        </form>
+        <a href="{{ url_for('listar_fornecedores') }}">Voltar</a>
+    </div>
+</body>
+</html>
