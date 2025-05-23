@@ -7,15 +7,14 @@ nixpkgs = [
   "mariadb"
 ]
 
-env = {
-  MYSQLCLIENT_CFLAGS = "-I/nix/store/*-mariadb-connector-c-*/include/mariadb";  
-  MYSQLCLIENT_LDFLAGS = "-L/nix/store/*-mariadb-connector-c-*/lib";
-}
-
 cmds = [
   "python3 -m venv /opt/venv",
   "/opt/venv/bin/python -m pip install --upgrade pip"
 ]
+
+[phases.setup.env]
+MYSQLCLIENT_CFLAGS = "-I/nix/store/*-mariadb-connector-c-*/include/mariadb"
+MYSQLCLIENT_LDFLAGS = "-L/nix/store/*-mariadb-connector-c-*/lib"
 
 [phases.install]
 cmds = [
